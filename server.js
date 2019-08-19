@@ -12,6 +12,16 @@ mongoose.connect(process.env.MONGOLAB_URI, {useNewUrlParser: true}, function(err
   }
 });
 
+// schema for MongoDB
+const Schema = mongoose.Schema;
+
+const newUserSchema = new Schema({
+  username: String,
+
+});
+
+let NewUser = mongoose.model('NewUser', newUserSchema);
+
 app.use(cors());
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -23,6 +33,24 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+
+app.post("/api/exercise/new-user", (req, res) => {
+  // create new username and ID in MongoDB
+  let usernameInput = req.body.username;
+
+  let username = new NewUser({
+    username: usernameInput
+  });
+  username.save()
+  .then(result => {
+    console.log('added to mongodb');
+    res.json({
+      username: usernameInput
+    });
+  }).catch(err => {
+    console.log(err);
+  });
+});
 
 // Not found middleware
 app.use((req, res, next) => {
