@@ -1,11 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-
+const mongo = require('mongodb');
 const cors = require('cors');
 
 const mongoose = require('mongoose');
-mongoose.connect(process.env.MLAB_URI || 'mongodb://localhost/exercise-track' );
+mongoose.connect(process.env.MONGOLAB_URI, {useNewUrlParser: true}, function(error){
+  if (error) {
+  console.log(error);
+  }
+});
 
 app.use(cors());
 
