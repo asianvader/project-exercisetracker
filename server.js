@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const mongo = require('mongodb');
 const cors = require('cors');
+const shortid = require('shortid');
 
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOLAB_URI, {useNewUrlParser: true}, function(error){
@@ -17,7 +18,10 @@ const Schema = mongoose.Schema;
 
 const newUserSchema = new Schema({
   username: String,
-
+  _id: {
+    'type': String,
+    'default': shortid.generate
+  }
 });
 
 let NewUser = mongoose.model('NewUser', newUserSchema);
@@ -45,7 +49,8 @@ app.post("/api/exercise/new-user", (req, res) => {
   .then(result => {
     console.log('added to mongodb');
     res.json({
-      username: usernameInput
+      username: usernameInput,
+      _id: result.id
     });
   }).catch(err => {
     console.log(err);
