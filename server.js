@@ -63,15 +63,21 @@ app.post("/api/exercise/new-user", (req, res) => {
   });
 });  
 
+// GET username and ID
 app.get("/api/exercise/users/:user", (req, res) => {
   let getUsername = req.params.user;
-  let existingUser = NewUser.findOne({username: req.params.user}, (err, data) => {
-    console.log(data);
-    res.json({
-      username: data.username,
-      _id: data.id
-    });
-  })
+
+  let existingUser = NewUser.findOne({username: getUsername}, (err, data) => {
+    if (data) {
+      console.log(data);
+      res.json({
+        username: data.username,
+        _id: data.id
+      });
+    } else {
+      res.send("Username does not exist");
+    }
+  });
 });
 
 // Not found middleware
