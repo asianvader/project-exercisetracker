@@ -59,11 +59,20 @@ app.post("/api/exercise/new-user", (req, res) => {
       }).catch(err => {
         console.log(err);
       });
-
     }
-  })
-
+  });
 });  
+
+app.get("/api/exercise/users/:user", (req, res) => {
+  let getUsername = req.params.user;
+  let existingUser = NewUser.findOne({username: req.params.user}, (err, data) => {
+    console.log(data);
+    res.json({
+      username: data.username,
+      _id: data.id
+    });
+  })
+});
 
 // Not found middleware
 app.use((req, res, next) => {
