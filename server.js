@@ -39,23 +39,31 @@ app.get('/', (req, res) => {
 
 
 app.post("/api/exercise/new-user", (req, res) => {
-  // create new username and ID in MongoDB
   let usernameInput = req.body.username;
+  // check if username is in DB
+  let checkUsername = NewUser.findOne({username: usernameInput}, (err, data) => {
+    if (data) {
+      res.send('Username taken, please choose another');
+    } else {
+        // create new username and ID in MongoDB  
+      let username = new NewUser({
+        username: usernameInput
+      });
+      username.save()
+      .then(result => {
+        console.log('added to mongodb');
+        res.json({
+          username: usernameInput,
+          _id: result.id
+        });
+      }).catch(err => {
+        console.log(err);
+      });
 
-  let username = new NewUser({
-    username: usernameInput
-  });
-  username.save()
-  .then(result => {
-    console.log('added to mongodb');
-    res.json({
-      username: usernameInput,
-      _id: result.id
-    });
-  }).catch(err => {
-    console.log(err);
-  });
-});
+    }
+  })
+
+});  
 
 // Not found middleware
 app.use((req, res, next) => {
