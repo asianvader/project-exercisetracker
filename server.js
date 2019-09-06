@@ -89,14 +89,25 @@ app.get("/api/exercise/users", (req, res) => {
   });
 });
 
+// function to convert date
+
 // POST exercise and duration => /api/exercise/add
 app.post("/api/exercise/add", (req, res) => {
   let userIdInput = req.body.userId;
   let description = req.body.description;
   let duration = req.body.duration;
   let date = req.body.date;
+  if (date === "") {
+    date = new Date().toUTCString();
+    date = date.split(' ').slice(0, 4).join(' ');
+  } else {
+    let convertDate = new Date(date).toUTCString();
+    date = convertDate.split(' ').slice(0, 4).join(' ');
+  }
+  console.log(date)
 
 // check if username is in DB
+
 NewUser.findOne({_id: userIdInput}, (err, data) => {
   if (data) {
     data.log.push({
