@@ -21,7 +21,9 @@ const newUserSchema = new Schema({
   _id: {
     'type': String,
     'default': shortid.generate
-  }
+  },
+  count: Number,
+  log: Array
 });
 
 let NewUser = mongoose.model('NewUser', newUserSchema);
@@ -85,7 +87,43 @@ app.get("/api/exercise/users", (req, res) => {
   NewUser.find({}, (err, users) => {
     res.send(users);
   });
-})
+});
+
+// POST exercise and duration => /api/exercise/add
+app.post("/api/exercise/add", (req, res) => {
+  let userIdInput = req.body.userId;
+  let description = req.body.description;
+  let duration = req.body.duration;
+  let date = req.body.date;
+
+// check if username is in DB
+NewUser.findOne({_id: userIdInput}, (err, data) => {
+  if (data) {
+    data.log.push({
+      description: description,
+      duration: duration,
+      date: date
+    });
+    data.save()
+    .then(result => {
+      console.log('updated on mongodb');
+      res.json({
+        username: result.username,
+        log: result.log
+      });
+    }).catch(err => {
+      console.log(err);
+    });
+    
+
+  
+  } else {
+    res.send('User ID not found')
+  }
+});
+
+});
+
 
 // Not found middleware
 app.use((req, res, next) => {
