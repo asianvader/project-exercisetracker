@@ -49,7 +49,8 @@ app.post("/api/exercise/new-user", (req, res) => {
     } else {
         // create new username and ID in MongoDB  
       let username = new NewUser({
-        username: usernameInput
+        username: usernameInput,
+        count: 0
       });
       username.save()
       .then(result => {
@@ -104,36 +105,49 @@ app.post("/api/exercise/add", (req, res) => {
     let convertDate = new Date(date).toUTCString();
     date = convertDate.split(' ').slice(0, 4).join(' ');
   }
-  console.log(date)
 
-// check if username is in DB
-
-NewUser.findOne({_id: userIdInput}, (err, data) => {
-  if (data) {
-    data.log.push({
-      description: description,
-      duration: duration,
-      date: date
-    });
-    data.save()
-    .then(result => {
-      console.log('updated on mongodb');
-      res.json({
-        username: result.username,
-        log: result.log
+// check if username is in DB and add exercise log
+  NewUser.findOne({_id: userIdInput}, (err, data) => {
+    if (data) {
+      data.log.push({
+        description: description,
+        duration: duration,
+        date: date
       });
-    }).catch(err => {
-      console.log(err);
-    });
-    
-
-  
-  } else {
-    res.send('User ID not found')
-  }
+      data.save()
+      .then(result => {
+        res.json({
+          username: result.username,
+          _id: result.id,
+          log: result.log.pop()
+        });
+      }).catch(err => {
+        console.log(err);
+      });
+    } else {
+      res.send('User ID not found')
+    }
+  });
 });
 
-});
+// return log of all exercises
+app.get("/api/exercise/log/:userid?", (req, res) => {
+  let userid = req.params.userid;
+  console.log(userid)
+
+  NewUser.findOne({_id: userid}, (err, data) => {
+    if (data) {
+      res.json({
+        _id: data.id,
+        username: data.username,
+        count: data.log.length,
+        log: data.log
+        });
+    } else {
+      res.send('User ID not found')
+    }
+  });
+})
 
 
 // Not found middleware
@@ -158,7 +172,8 @@ app.use((err, req, res, next) => {
   }
   res.status(errCode).type('txt')
     .send(errMessage)
-})
+});
+
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
