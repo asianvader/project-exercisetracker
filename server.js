@@ -80,6 +80,13 @@ app.get("/api/exercise/users/:user", (req, res) => {
   });
 });
 
+// return all usernames and passwords in an array
+app.get("/api/exercise/users", (req, res) => {
+  NewUser.find({}, (err, users) => {
+    res.send(users);
+  });
+})
+
 // Not found middleware
 app.use((req, res, next) => {
   return next({status: 404, message: 'not found'})
