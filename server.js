@@ -99,11 +99,11 @@ app.post("/api/exercise/add", (req, res) => {
   let duration = req.body.duration;
   let date = req.body.date;
   if (date === "") {
-    date = new Date().toUTCString();
-    date = date.split(' ').slice(0, 4).join(' ');
+    date = new Date();
+    // date = date.split(' ').slice(0, 4).join(' ');
   } else {
-    let convertDate = new Date(date).toUTCString();
-    date = convertDate.split(' ').slice(0, 4).join(' ');
+    date = new Date(date);
+    // date = convertDate.split(' ').slice(0, 4).join(' ');
   }
 
 // check if username is in DB and add exercise log
@@ -131,17 +131,39 @@ app.post("/api/exercise/add", (req, res) => {
 });
 
 // return log of all exercises
-app.get("/api/exercise/log/:userid?", (req, res) => {
-  let userid = req.params.userid;
-  console.log(userid)
+app.get("/api/exercise/log", (req, res) => {
+  let userid = req.query.userid;
+  let from = new Date(req.query.from);
+  // from = from.split(' ').slice(0, 4).join(' ');
+  let to = new Date(req.query.to);
+  // to = to.split(' ').slice(0, 4).join(' ');
+  let limit = req.query.limit;
 
+  // let convertDate = new Date(date).toUTCString();
+  // date = convertDate.split(' ').slice(0, 4).join(' ');
+
+  console.log(from);
+  console.log(to);
   NewUser.findOne({_id: userid}, (err, data) => {
     if (data) {
+      let log = data.log;
+      let filteredLog = [];
+      console.log(log)
+      if (to && from) {
+        for (let i = 0; i < log.length; i++) {
+          if(log[i].date >= from && log[i].date <= to ) {
+            filteredLog.push(log[i])
+          }
+        }
+      }
+      if(!isNaN(limit)) {
+        filteredLog = filteredLog.slice(0, limit);
+      }
       res.json({
         _id: data.id,
         username: data.username,
-        count: data.log.length,
-        log: data.log
+        count: limit,
+        log: filteredLog
         });
     } else {
       res.send('User ID not found')
