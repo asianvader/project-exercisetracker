@@ -150,7 +150,6 @@ app.get("/api/exercise/log", (req, res) => {
 
       // if there is only limit param
       if (limit && req.query.from === undefined) {
-        console.log("3")
         if(!isNaN(limit)) {
           log = log.slice(0, limit);
           console.log(log);
@@ -163,7 +162,6 @@ app.get("/api/exercise/log", (req, res) => {
         }
         // if there's to from and limit params
       } else if (to && from && limit) {
-        console.log("1")
         // check is it's a number
         if(!isNaN(limit)) {
           filteredLog = filteredLog.slice(0, limit);
@@ -187,7 +185,6 @@ app.get("/api/exercise/log", (req, res) => {
           });
           // to and from params
       } else if (to && from) {
-        console.log("2")
         res.json({
           _id: data.id,
           username: data.username,
