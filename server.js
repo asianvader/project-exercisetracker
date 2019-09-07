@@ -100,10 +100,8 @@ app.post("/api/exercise/add", (req, res) => {
   let date = req.body.date;
   if (date === "") {
     date = new Date();
-    // date = date.split(' ').slice(0, 4).join(' ');
   } else {
     date = new Date(date);
-    // date = convertDate.split(' ').slice(0, 4).join(' ');
   }
 
 // check if username is in DB and add exercise log
@@ -130,25 +128,19 @@ app.post("/api/exercise/add", (req, res) => {
   });
 });
 
-// return log of all exercises
+// return log of all exercises using from & to & limit parameters
 app.get("/api/exercise/log", (req, res) => {
   let userid = req.query.userid;
   let from = new Date(req.query.from);
-  // from = from.split(' ').slice(0, 4).join(' ');
   let to = new Date(req.query.to);
-  // to = to.split(' ').slice(0, 4).join(' ');
   let limit = req.query.limit;
 
-  // let convertDate = new Date(date).toUTCString();
-  // date = convertDate.split(' ').slice(0, 4).join(' ');
-
-  console.log(from);
-  console.log(to);
+  // check db by ID
   NewUser.findOne({_id: userid}, (err, data) => {
     if (data) {
       let log = data.log;
       let filteredLog = [];
-      console.log(log)
+      // if there are to & from params
       if (to && from) {
         for (let i = 0; i < log.length; i++) {
           if(log[i].date >= from && log[i].date <= to ) {
@@ -156,6 +148,7 @@ app.get("/api/exercise/log", (req, res) => {
           }
         }
       }
+      // if there's a limit param
       if(!isNaN(limit)) {
         filteredLog = filteredLog.slice(0, limit);
       }
@@ -169,7 +162,8 @@ app.get("/api/exercise/log", (req, res) => {
       res.send('User ID not found')
     }
   });
-})
+});
+
 
 
 // Not found middleware
