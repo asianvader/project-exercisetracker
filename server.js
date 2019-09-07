@@ -128,43 +128,78 @@ app.post("/api/exercise/add", (req, res) => {
   });
 });
 
-// return log of all exercises using from & to & limit parameters
+// log parameters
 app.get("/api/exercise/log", (req, res) => {
   let userid = req.query.userid;
   let from = new Date(req.query.from);
   let to = new Date(req.query.to);
   let limit = req.query.limit;
 
+  console.log (req.query.from, to, limit)
   // check db by ID
   NewUser.findOne({_id: userid}, (err, data) => {
     if (data) {
       let log = data.log;
       let filteredLog = [];
-      // if there are to & from params
-      if (to && from) {
-        for (let i = 0; i < log.length; i++) {
-          if(log[i].date >= from && log[i].date <= to ) {
-            filteredLog.push(log[i])
-          }
+      // loop to filter log by from and to dates
+      for (let i = 0; i < log.length; i++) {
+        if(log[i].date >= from && log[i].date <= to ) {
+          filteredLog.push(log[i])
         }
       }
-      // if there's a limit param
-      if(!isNaN(limit)) {
-        filteredLog = filteredLog.slice(0, limit);
-      }
-      res.json({
-        _id: data.id,
-        username: data.username,
-        count: limit,
-        log: filteredLog
-        });
+
+      // if there is only limit param
+      if (limit && req.query.from === undefined) {
+        console.log("3")
+        if(!isNaN(limit)) {
+          log = log.slice(0, limit);
+          console.log(log);
+        res.json({
+          _id: data.id,
+          username: data.username,
+          count: log.length,
+          log: log
+          });
+        }
+        // if there's to from and limit params
+      } else if (to && from && limit) {
+        console.log("1")
+        // check is it's a number
+        if(!isNaN(limit)) {
+          filteredLog = filteredLog.slice(0, limit);
+          
+          res.json({
+            _id: data.id,
+            username: data.username,
+            count: filteredLog.length,
+            log: filteredLog
+            });
+          } else {
+            res.send("Not a valid limit number");
+          }
+          // just user ID given return log
+      } else if (limit === undefined && req.query.from === undefined) {
+        res.json({
+          _id: data.id,
+          username: data.username,
+          count: log.length,
+          log: log
+          });
+          // to and from params
+      } else if (to && from) {
+        console.log("2")
+        res.json({
+          _id: data.id,
+          username: data.username,
+          count: filteredLog.length,
+          log: filteredLog
+          });
+      } 
     } else {
       res.send('User ID not found')
     }
   });
 });
-
-
 
 // Not found middleware
 app.use((req, res, next) => {
