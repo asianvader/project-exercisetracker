@@ -50,7 +50,6 @@ app.post("/api/exercise/new-user", (req, res) => {
         // create new username and ID in MongoDB  
       let username = new NewUser({
         username: usernameInput,
-        count: 0
       });
       username.save()
       .then(result => {
@@ -85,8 +84,8 @@ app.get("/api/exercise/users/:user", (req, res) => {
 
 // return all usernames and passwords in an array
 app.get("/api/exercise/users", (req, res) => {
-  NewUser.find({}, (err, users) => {
-    res.send(users);
+NewUser.find({}, {log: 0}, {count: 0}, (err, users) => {
+    res.send(users)
   });
 });
 
